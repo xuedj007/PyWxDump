@@ -1,29 +1,20 @@
 # 用户指南
 
-##  小白教程
+## 小白教程（大佬请看下面）
 
 ### 1. 安装
 
-下载[release](https://github.com/xaoyaoo/PyWxDump/releases)中的exe文件
+下载[release](https://github.com/xaoyaoo/PyWxDump/releases)中的exe文件(选择最新版)
 
 ### 2. 使用
 
 * 1.打开微信电脑版，登录微信
 * 2.进入下载的exe文件所在目录
-* 3.按住shift键，同时鼠标右键，选择“在此处打开命令窗口”，或者“在此处打开powershell窗口”
-* 4.在命令窗口中输入`./wxdump.exe`，按回车键
-* 5.接着根据提示输入参数，回车键确认
-eg:
+* 3.双击wx_dump.exe运行
+* 4.打开浏览器，访问 http://127.0.0.1:5000/ 使用图形界面
+* 5.根据提示操作
 
-```shell script
-./wxdump.exe info # 获取微信信息
-./wxdump.exe decrypt -k "密钥" -i "数据库路径(目录or文件)" # 解密微信数据库,引号必须在英文状态下输入
-./wxdump.exe dbshow -msg "解密后的 MSG.db 的路径" -micro "解密后的 MicroMsg.db 的路径" -media "解密后的 MediaMSG.db 的路径" # 接着打开浏览器访问 http://127.0.0.1:5000/ 查看聊天记录
-./wxdump.exe export -u "微信账号" -o "导出路径" -msg "解密后的 MSG.db 的路径" -micro "解密后的 MicroMsg.db 的路径" -media "解密后的 MediaMSG.db 的路径" # 导出聊天记录为html
-./wxdump.exe all # 获取微信信息，解密微信数据库，查看聊天记录
-```
-
-* 6.查看聊天记录后，按`ctrl+c`退出
+【注】更多详细使用方法关注公众号：`逍遥之芯`，回复：`PyWxDump` 获取图文教程。
 
 ## 详细教程(小白请看上面)
 
@@ -38,25 +29,34 @@ pip install -U pywxdump
 #### 1.2 从源码安装(安装最新版)
 
 ```shell script
-pip install -U git+git://github.com/xaoyaoo/PyWxDump.git
+pip install -U git+git://github.com/xaoyaoo/PyWxDump.git # 该方法无法安装网页图形界面，会导致浏览器显示页面无法打开，显示404
 ```
 
 或
 
 ```shell script
+# 如果使用网页图形界面，需要执行以下命令
+git clone https://github.com/xaoyaoo/wxdump_web.git
+cd wxdump_web
+npm run build
+cd ..
+# 安装PyWxDump
 git clone https://github.com/xaoyaoo/PyWxDump.git
+cp -r wxdump_web/dist PyWxDump/pywxdump/ui/web # 将网页图形界面文件复制到PyWxDump中，如果不需要网页图形界面，可以跳过这一步
 cd PyWxDump
 python -m pip install -U .
 ```
 
 #### 1.3 打包可执行文件exe
 
-* 自行打包，打包脚本见： [build_exe.py](./tests/build_exe.py)
+* 默认你已经安装好python环境，并且下载了源码，进入项目根目录，同时已经安装了pyinstaller
+* 并且完成了[1.2 从源码安装](#12-从源码安装安装最新版)
 
 ```shell
 cd tests
 python build_exe.py
 # 接着执行输出的打包脚本
+pyinstaller --clean --distpath=dist dist/pywxdump.spec
 ```
 
 * 直接下载打包好的exe文件：[release](https://github.com/xaoyaoo/PyWxDump/releases)
@@ -68,15 +68,18 @@ python build_exe.py
 激活虚拟环境后（如果有的话），在项目根目录下运行：
 
 ```shell script
-wxdump 模式 [参数]
-#  运行模式(mode):
-#    bias      获取微信基址偏移
-#    info      获取微信信息
-#    db_path   获取微信文件夹路径
-#    decrypt   解密微信数据库
-#    dbshow    聊天记录查看
-#    export    聊天记录导出为html
-#    all       获取微信信息，解密微信数据库，查看聊天记录
+wxdump -h  # 查看具体帮助
+# 用法: 
+# wxdump 模式 [参数]
+#  mode           运行模式:
+#    bias         获取微信基址偏移
+#    info         获取微信信息
+#    wx_path      获取微信文件夹路径
+#    decrypt      解密微信数据库
+#    merge        [测试功能]合并微信数据库(MSG.db or MediaMSG.db)
+#    all          【已废弃】获取微信信息，解密微信数据库，查看聊天记录
+#    ui           启动网页图形界面
+#    api          启动API服务, 默认端口5000,无图形界面
 ```
 
 *示例*
@@ -89,43 +92,50 @@ wxdump 模式 [参数]
 ##### 获取微信基址偏移
 
 ```bash
-pywxdump bias --mobile <手机号> --name <微信昵称> --account <微信账号> [--key <密钥>] [--db_path <已登录账号的微信文件夹路径>] [--version_list_path <微信版本偏移文件路径>]
+wxdump bias -h # 查看具体帮助
+wxdump bias --mobile <手机号> --name <微信昵称> --account <微信账号> [--key <密钥>] [--db_path <已登录账号的微信文件夹路径>] [--WX_OFFS_path <微信版本偏移文件路径>]
 ```
 
 ##### 获取微信信息
 
 ```bash
-pywxdump info [--version_list_path <微信版本偏移文件路径>]
+wxdump info -h # 查看具体帮助
+wxdump info [--WX_OFFS_path <微信版本偏移文件路径>]
 ```
 
 ##### 获取微信文件夹路径
 
 ```bash
-pywxdump db_path [-r <需要的数据库名称>] [-wf <WeChat Files 路径>] [-id <wxid_>] 
+wxdump wx_path -h # 查看具体帮助
+wxdump wx_path [-r <需要的数据库名称>] [-wf <WeChat Files 路径>] [-id <wxid_>] 
 ```
 
 ##### 解密微信数据库
 
 ```bash
-pywxdump decrypt -k <密钥> -i <数据库路径(目录or文件)> [-o <输出路径>]
-```
-
-##### 查看聊天记录
-
-```bash
-pywxdump dbshow -msg <解密后的 MSG.db 的路径> -micro <解密后的 MicroMsg.db 的路径> -media <解密后的 MediaMSG.db 的路径> [-fs <FileStorage 路径>]
-```
-
-##### 导出聊天记录为 HTML
-
-```bash
-pywxdump export -u <微信账号> -o <导出路径> -msg <解密后的 MSG.db 的路径> -micro <解密后的 MicroMsg.db 的路径> -media <解密后的 MediaMSG.db 的路径> [-fs <FileStorage 路径>]
+wxdump decrypt -h # 查看具体帮助
+wxdump decrypt -k <密钥> -i <数据库路径(目录or文件)> [-o <输出路径>]
 ```
 
 ##### 获取微信信息、解密数据库、查看聊天记录，一条命令搞定，开放端口5000，浏览器访问查看聊天记录（支持局域网其他机器访问）
 
 ```bash
-pywxdump all
+wxdump all -h # 【已废弃】查看具体帮助
+wxdump all
+```
+
+##### 启动网页图形界面（根据图形界面提示自行使用）
+
+```bash
+wxdump ui -h # 查看具体帮助
+wxdump ui
+```
+
+##### 启动API服务
+
+```bash
+wxdump api -h # 查看具体帮助
+wxdump api
 ```
 
 </details>
@@ -150,13 +160,13 @@ args = {
     "account": "微信账号",  # 微信账号
     "key": "密钥",  # 密钥（可选）
     "db_path": "已登录账号的微信文件夹路径",  # 微信文件夹路径（可选）
-    "version_list_path": "微信版本偏移文件路径"  # 微信版本偏移文件路径（可选）
+    "WX_OFFS_path": "微信版本偏移文件路径"  # 微信版本偏移文件路径（可选）
 }
 bias_addr = BiasAddr(args["account"], args["mobile"], args["name"], args["key"], args["db_path"])
-result = bias_addr.run(True, args["version_list_path"])
+result = bias_addr.run(True, args["WX_OFFS_path"])
 # ************************************************************************************************ #
 # 获取微信信息
-wx_info = read_info(VERSION_LIST, True)
+wx_info = read_info(WX_OFFS, True)
 
 # 获取微信文件夹路径
 args = {
@@ -176,46 +186,6 @@ args = {
 }
 result = batch_decrypt(args["key"], args["db_path"], args["out_path"], True)
 # ************************************************************************************************ #
-# 查看聊天记录
-args = {
-    "mode": "dbshow",
-    "msg_path": "解密后的 MSG.db 的路径",  # 解密后的 MSG.db 的路径
-    "micro_path": "解密后的 MicroMsg.db 的路径",  # 解密后的 MicroMsg.db 的路径
-    "media_path": "解密后的 MediaMSG.db 的路径",  # 解密后的 MediaMSG.db 的路径
-    "filestorage_path": "文件夹FileStorage的路径"  # 文件夹 FileStorage 的路径（用于显示图片）
-}
-from flask import Flask, request, jsonify, render_template, g
-import logging
-
-app = Flask(__name__, template_folder='./show_chat/templates')
-app.logger.setLevel(logging.ERROR)
-
-
-@app.before_request
-def before_request():
-    g.MSG_ALL_db_path = args["msg_path"]
-    g.MicroMsg_db_path = args["micro_path"]
-    g.MediaMSG_all_db_path = args["media_path"]
-    g.FileStorage_path = args["filestorage_path"]
-    g.USER_LIST = get_user_list(args["msg_path"], args["micro_path"])
-
-
-app.register_blueprint(app_show_chat)
-print("[+] 请使用浏览器访问 http://127.0.0.1:5000/ 查看聊天记录")
-app.run(debug=False)
-# ************************************************************************************************ #
-# 导出聊天记录为 HTML
-args = {
-    "mode": "export",
-    "username": "微信账号",  # 微信账号（聊天对象账号）
-    "outpath": "/path/to/export",  # 导出路径
-    "msg_path": "解密后的 MSG.db 的路径",  # 解密后的 MSG.db 的路径
-    "micro_path": "解密后的 MicroMsg.db 的路径",  # 解密后的 MicroMsg.db 的路径
-    "media_path": "解密后的 MediaMSG.db 的路径",  # 解密后的 MediaMSG.db 的路径
-    "filestorage_path": "文件夹FileStorage的路径"  # 文件夹 FileStorage 的路径（用于显示图片）
-}
-export(args["username"], args["outpath"], args["msg_path"], args["micro_path"], args["media_path"],
-       args["filestorage_path"])
 ```
 
 </details>
@@ -234,4 +204,7 @@ export(args["username"], args["outpath"], args["msg_path"], args["micro_path"], 
 
 详见[更新日志](./CHANGELOG.md)
 
+### 5. 其他
 
+进群密码请查看[FAQ](./FAQ.md)
+关于系统支持版本：Windows 10 64位及以上、 python 3.8及以上，其他版本遇到错误需要自行解决
